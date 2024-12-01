@@ -4,6 +4,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CustomerSite", "src\Custome
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{27FAF318-F53A-41A1-B460-954DC451F4A5}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DatabaseContext", "src\DatabaseContext\DatabaseContext.csproj", "{5E077F51-B4E8-42B0-826F-655D9FD1FBF4}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -14,8 +16,13 @@ Global
 		{B444D894-B1E7-4301-927A-7B100C7AC174}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{B444D894-B1E7-4301-927A-7B100C7AC174}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{B444D894-B1E7-4301-927A-7B100C7AC174}.Release|Any CPU.Build.0 = Release|Any CPU
+		{5E077F51-B4E8-42B0-826F-655D9FD1FBF4}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{5E077F51-B4E8-42B0-826F-655D9FD1FBF4}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{5E077F51-B4E8-42B0-826F-655D9FD1FBF4}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{5E077F51-B4E8-42B0-826F-655D9FD1FBF4}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
 		{B444D894-B1E7-4301-927A-7B100C7AC174} = {27FAF318-F53A-41A1-B460-954DC451F4A5}
+		{5E077F51-B4E8-42B0-826F-655D9FD1FBF4} = {27FAF318-F53A-41A1-B460-954DC451F4A5}
 	EndGlobalSection
 EndGlobal
