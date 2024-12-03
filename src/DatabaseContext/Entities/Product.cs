@@ -9,4 +9,8 @@ public partial class Product
     public string? Description { get; set; }
 
     public int Price { get; set; }
+
+    public virtual ICollection<Category> Categories { get; set; } = new List<Category>();
+
+    public virtual ICollection<Promotion> Promotions { get; set; } = new List<Promotion>();
 }

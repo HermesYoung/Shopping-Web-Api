@@ -1,6 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using DatabaseContext.Entities;
+﻿using DatabaseContext.Entities;
 using Microsoft.EntityFrameworkCore;
 
 namespace DatabaseContext.Context;
@@ -25,10 +23,6 @@ public partial class ShoppingWebDbContext : DbContext
     public virtual DbSet<OrderContent> OrderContents { get; set; }
 
     public virtual DbSet<Product> Products { get; set; }
-
-    public virtual DbSet<ProductCategory> ProductCategories { get; set; }
-
-    public virtual DbSet<ProductPromotion> ProductPromotions { get; set; }
 
     public virtual DbSet<Promotion> Promotions { get; set; }
 
@@ -172,46 +166,44 @@ public partial class ShoppingWebDbContext : DbContext
                 .IsUnicode(false)
                 .HasColumnName("name");
             entity.Property(e => e.Price).HasColumnName("price");
-        });
 
-        modelBuilder.Entity<ProductCategory>(entity =>
-        {
-            entity
-                .HasNoKey()
-                .ToTable("product_category", "shopping_web");
+            entity.HasMany(d => d.Categories).WithMany(p => p.Products)
+                .UsingEntity<Dictionary<string, object>>(
+                    "ProductCategory",
+                    r => r.HasOne<Category>().WithMany()
+                        .HasForeignKey("CategoryId")
+                        .OnDelete(DeleteBehavior.ClientSetNull)
+                        .HasConstraintName("product_category_category_id_fk"),
+                    l => l.HasOne<Product>().WithMany()
+                        .HasForeignKey("ProductId")
+                        .OnDelete(DeleteBehavior.ClientSetNull)
+                        .HasConstraintName("product_category_product_id_fk"),
+                    j =>
+                    {
+                        j.HasKey("ProductId", "CategoryId").HasName("product_category_pk");
+                        j.ToTable("product_category", "shopping_web");
+                        j.IndexerProperty<Guid>("ProductId").HasColumnName("product_id");
+                        j.IndexerProperty<int>("CategoryId").HasColumnName("category_id");
+                    });
 
-            entity.Property(e => e.CategoryId).HasColumnName("category_id");
-            entity.Property(e => e.ProductId).HasColumnName("product_id");
-
-            entity.HasOne(d => d.Category).WithMany()
-                .HasForeignKey(d => d.CategoryId)
-                .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("product_category_category_id_fk");
-
-            entity.HasOne(d => d.Product).WithMany()
-                .HasForeignKey(d => d.ProductId)
-                .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("product_category_product_id_fk");
-        });
-
-        modelBuilder.Entity<ProductPromotion>(entity =>
-        {
-            entity
-                .HasNoKey()
-                .ToTable("product_promotion", "shopping_web");
-
-            entity.Property(e => e.ProductId).HasColumnName("product_id");
-            entity.Property(e => e.PromotionId).HasColumnName("promotion_id");
-
-            entity.HasOne(d => d.Product).WithMany()
-                .HasForeignKey(d => d.ProductId)
-                .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("product_promotion_product_id_fk");
-
-            entity.HasOne(d => d.Promotion).WithMany()
-                .HasForeignKey(d => d.PromotionId)
-                .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("product_promotion_promotion_id_fk");
+            entity.HasMany(d => d.Promotions).WithMany(p => p.Products)
+                .UsingEntity<Dictionary<string, object>>(
+                    "ProductPromotion",
+                    r => r.HasOne<Promotion>().WithMany()
+                        .HasForeignKey("PromotionId")
+                        .OnDelete(DeleteBehavior.ClientSetNull)
+                        .HasConstraintName("product_promotion_promotion_id_fk"),
+                    l => l.HasOne<Product>().WithMany()
+                        .HasForeignKey("ProductId")
+                        .OnDelete(DeleteBehavior.ClientSetNull)
+                        .HasConstraintName("product_promotion_product_id_fk"),
+                    j =>
+                    {
+                        j.HasKey("ProductId", "PromotionId").HasName("product_promotion_pk");
+                        j.ToTable("product_promotion", "shopping_web");
+                        j.IndexerProperty<Guid>("ProductId").HasColumnName("product_id");
+                        j.IndexerProperty<int>("PromotionId").HasColumnName("promotion_id");
+                    });
         });
 
         modelBuilder.Entity<Promotion>(entity =>

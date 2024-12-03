@@ -13,4 +13,6 @@ public partial class Promotion
     public int Title { get; set; }
 
     public string? DisplayContent { get; set; }
+
+    public virtual ICollection<Product> Products { get; set; } = new List<Product>();
 }
