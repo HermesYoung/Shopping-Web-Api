@@ -29,7 +29,6 @@ internal class ProductRepository : IProductRepository
         }
         product.Categories.Add(category);
         _shoppingWebDbContext.Products.Add(product);
-        _shoppingWebDbContext.ChangeTracker.DetectChanges();
         await _shoppingWebDbContext.SaveChangesAsync();
         return Result.Success();
     }
