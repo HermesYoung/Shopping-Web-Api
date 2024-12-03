@@ -20,13 +20,14 @@ internal class ProductRepository : IProductRepository
         _shoppingWebDbContext = shoppingWebDbContext;
     }
 
-    public async Task<Result> AddProduct(int categoryId ,Product product)
+    public async Task<Result> AddProduct(int categoryId, Product product)
     {
         var category = await _shoppingWebDbContext.Categories.FindAsync(categoryId);
         if (category == null)
         {
             return Result.Failure();
         }
+
         product.Categories.Add(category);
         _shoppingWebDbContext.Products.Add(product);
         await _shoppingWebDbContext.SaveChangesAsync();
