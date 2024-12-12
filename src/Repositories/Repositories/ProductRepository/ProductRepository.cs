@@ -1,5 +1,6 @@
 ﻿using DatabaseContext.Context;
 using DatabaseContext.Entities;
+using Microsoft.EntityFrameworkCore;
 using Repositories.Abstracts;
 using Repositories.Common;
 using Repositories.Repositories.ProductRepository.Models;
@@ -15,7 +16,7 @@ internal class ProductRepository : IProductRepository
         _shoppingWebDbContext = shoppingWebDbContext;
     }
 
-    public async Task<Result> AddProducts(IEnumerable<CategorizedProduct> categorizedProducts)
+    public async Task<Result> AddProductsAsync(IEnumerable<CategorizedProduct> categorizedProducts)
     {
         var productList = new List<Product>();
 
@@ -27,15 +28,18 @@ internal class ProductRepository : IProductRepository
                 return Result.Failure();
             }
 
-            productList.Add(new Product()
+            var product = new Product()
             {
                 Name = categorizedProduct.ProductDetail.Name,
                 Price = categorizedProduct.ProductDetail.Price,
                 Description = categorizedProduct.ProductDetail.Description,
                 IsSoldOut =  categorizedProduct.ProductDetail.IsSoldOut,
                 IsDisabled = categorizedProduct.ProductDetail.IsDisabled,
-                Id = Guid.NewGuid()
-            });
+                Id = Guid.NewGuid(),
+            };
+            product.Categories.Add(category);
+            
+            productList.Add(product);
         }
 
         _shoppingWebDbContext.Products.AddRange(productList);
@@ -44,16 +48,22 @@ internal class ProductRepository : IProductRepository
         return Result.Success();
     }
 
-    public async Task<Result> DeleteProduct(Guid productId)
+    public async Task<Result> DeleteProductAsync(Guid productId)
     {
-        _shoppingWebDbContext.Products.Where(x => x.Id == productId).ToList()
-            .ForEach(x => x.Categories.Clear());
+        var product = await _shoppingWebDbContext.Products.Include(x => x.Categories).FirstOrDefaultAsync(x => x.Id == productId);
+        if (product == null)
+        {
+            return Result.Failure();
+        }
+        
+        product.Categories.Clear();
+        _shoppingWebDbContext.Products.Update(product);
 
         await _shoppingWebDbContext.SaveChangesAsync();
         return Result.Success();
     }
 
-    public async Task<Result> UpdateProduct(Guid productId, ProductUpdateDetail productUpdateDetail)
+    public async Task<Result> UpdateProductAsync(Guid productId, ProductUpdateDetail productUpdateDetail)
     {
         var product = _shoppingWebDbContext.Products.FirstOrDefault(x => x.Id == productId);
         if (product == null)

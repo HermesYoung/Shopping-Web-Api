@@ -5,7 +5,7 @@ namespace Repositories.Abstracts;
 
 public interface IProductRepository
 {
-    Task<Result> AddProducts(IEnumerable<CategorizedProduct> categorizedProducts);
-    Task<Result> DeleteProduct(Guid productId);
-    Task<Result> UpdateProduct(Guid productId, ProductUpdateDetail productUpdateDetail);
+    Task<Result> AddProductsAsync(IEnumerable<CategorizedProduct> categorizedProducts);
+    Task<Result> DeleteProductAsync(Guid productId);
+    Task<Result> UpdateProductAsync(Guid productId, ProductUpdateDetail productUpdateDetail);
 }
