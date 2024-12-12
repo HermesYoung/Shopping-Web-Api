@@ -1,4 +1,5 @@
 using DatabaseContext.Entities;
+using ManagementSite.Controllers.Models.Product;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Routing.Matching;
@@ -19,10 +20,18 @@ namespace ManagementSite.Controllers
         }
 
         [HttpPost]
-        public IActionResult CreateProduct(IEnumerable<CategorizedProduct> categorizedProducts)
+        public async Task<IActionResult> CreateProductAsync([FromBody] ProductCreateBody body)
         {
-            _productRepository.AddProductsAsync(categorizedProducts);
-            return Ok();
+            var categorizedProducts = body.Content
+                .SelectMany(productContent => productContent.ProductDetails.Select(productDetail =>
+                    new CategorizedProduct(productContent.CategoryId, productDetail))).ToList();
+            var result = await _productRepository.AddProductsAsync(categorizedProducts);
+            if (result.IsSuccess)
+            {
+                return Ok();
+            }
+
+            return BadRequest(result.Error);
         }
     }
 }
