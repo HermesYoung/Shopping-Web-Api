@@ -150,6 +150,8 @@ public partial class ShoppingWebDbContext : DbContext
 
             entity.ToTable("product", "shopping_web");
 
+            entity.HasIndex(e => e.IsDisabled, "product_is_disabled_index");
+
             entity.HasIndex(e => e.IsSoldOut, "product_is_visible_index");
 
             entity.Property(e => e.Id)
@@ -159,6 +161,7 @@ public partial class ShoppingWebDbContext : DbContext
                 .HasMaxLength(100)
                 .IsUnicode(false)
                 .HasColumnName("description");
+            entity.Property(e => e.IsDisabled).HasColumnName("is_disabled");
             entity.Property(e => e.IsSoldOut).HasColumnName("is_sold_out");
             entity.Property(e => e.Name)
                 .HasMaxLength(50)
