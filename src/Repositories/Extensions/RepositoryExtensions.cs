@@ -1,4 +1,5 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
+using Repositories.Abstracts;
 using Repositories.Repositories.ProductRepository;
 
 namespace Repositories.Extensions;

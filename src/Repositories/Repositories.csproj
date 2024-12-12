@@ -10,8 +10,4 @@
       <ProjectReference Include="..\DatabaseContext\DatabaseContext.csproj" />
     </ItemGroup>
 
-    <ItemGroup>
-      <Folder Include="Abstracts\" />
-    </ItemGroup>
-
 </Project>
