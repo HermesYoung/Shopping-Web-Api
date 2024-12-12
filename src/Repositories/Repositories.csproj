@@ -10,4 +10,8 @@
       <ProjectReference Include="..\DatabaseContext\DatabaseContext.csproj" />
     </ItemGroup>
 
+    <ItemGroup>
+      <Folder Include="Common\Errors\" />
+    </ItemGroup>
+
 </Project>
