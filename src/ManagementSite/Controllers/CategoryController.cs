@@ -18,13 +18,21 @@ namespace ManagementSite.Controllers
         [HttpPost]
         public async Task<IActionResult> CreateCategoryAsync([FromBody] CategoryCreateBody body)
         {
-            var result = await _categoryRepository.AddCategoryAsync(body.CategoryId, body.ParentId, body.Name);
+            var result = await _categoryRepository.AddCategoryAsync(body.CategoryId, body.Name);
             if (result.IsSuccess)
             {
                 return NoContent();
             }
             
             return BadRequest(result.Error);
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> GetAllCategoriesAsync()
+        {
+            var categories = await _categoryRepository.GetAllCategoriesAsync();
+            
+            return Ok(categories.Select(category => new CategoryView(category.Id, category.Name)));
         }
     }
 }

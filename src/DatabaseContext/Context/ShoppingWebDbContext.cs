@@ -36,8 +36,6 @@ public partial class ShoppingWebDbContext : DbContext
 
             entity.HasIndex(e => e.Name, "category_name_index");
 
-            entity.HasIndex(e => e.Parent, "category_parent_index");
-
             entity.Property(e => e.Id)
                 .ValueGeneratedNever()
                 .HasColumnName("id");
@@ -45,7 +43,6 @@ public partial class ShoppingWebDbContext : DbContext
                 .HasMaxLength(20)
                 .IsUnicode(false)
                 .HasColumnName("name");
-            entity.Property(e => e.Parent).HasColumnName("parent");
         });
 
         modelBuilder.Entity<OperationLog>(entity =>
