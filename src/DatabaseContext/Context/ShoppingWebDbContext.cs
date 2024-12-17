@@ -12,8 +12,6 @@ public partial class ShoppingWebDbContext : DbContext
 
     public virtual DbSet<Category> Categories { get; set; }
 
-    public virtual DbSet<OperationLog> OperationLogs { get; set; }
-
     public virtual DbSet<Order> Orders { get; set; }
 
     public virtual DbSet<OrderContent> OrderContents { get; set; }
@@ -23,8 +21,6 @@ public partial class ShoppingWebDbContext : DbContext
     public virtual DbSet<Promotion> Promotions { get; set; }
 
     public virtual DbSet<PurchaseHistory> PurchaseHistories { get; set; }
-
-    public virtual DbSet<User> Users { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -43,36 +39,6 @@ public partial class ShoppingWebDbContext : DbContext
                 .HasMaxLength(20)
                 .IsUnicode(false)
                 .HasColumnName("name");
-        });
-
-        modelBuilder.Entity<OperationLog>(entity =>
-        {
-            entity.HasKey(e => e.Id).HasName("operation_log_pk");
-
-            entity.ToTable("operation_log", "shopping_web");
-
-            entity.HasIndex(e => e.Date, "operation_log_date_index");
-
-            entity.HasIndex(e => e.Operation, "operation_log_operation_index");
-
-            entity.Property(e => e.Id).HasColumnName("id");
-            entity.Property(e => e.Content)
-                .IsUnicode(false)
-                .HasColumnName("content");
-            entity.Property(e => e.Date)
-                .HasColumnType("datetime")
-                .HasColumnName("date");
-            entity.Property(e => e.Operation)
-                .HasMaxLength(10)
-                .IsUnicode(false)
-                .HasColumnName("operation");
-            entity.Property(e => e.StatusCode).HasColumnName("status_code");
-            entity.Property(e => e.UserId).HasColumnName("user_id");
-
-            entity.HasOne(d => d.User).WithMany(p => p.OperationLogs)
-                .HasForeignKey(d => d.UserId)
-                .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("operation_log_user_id_fk");
         });
 
         modelBuilder.Entity<Order>(entity =>
@@ -245,25 +211,6 @@ public partial class ShoppingWebDbContext : DbContext
             entity.Property(e => e.PurchaseDate)
                 .HasColumnType("datetime")
                 .HasColumnName("purchase_date");
-        });
-
-        modelBuilder.Entity<User>(entity =>
-        {
-            entity.HasKey(e => e.Id).HasName("user_pk");
-
-            entity.ToTable("user", "shopping_web");
-
-            entity.HasIndex(e => e.Name, "user_pk_2").IsUnique();
-
-            entity.Property(e => e.Id).HasColumnName("id");
-            entity.Property(e => e.Name)
-                .HasMaxLength(20)
-                .IsUnicode(false)
-                .HasColumnName("name");
-            entity.Property(e => e.Password)
-                .HasMaxLength(512)
-                .IsUnicode(false)
-                .HasColumnName("password");
         });
 
         OnModelCreatingPartial(modelBuilder);
