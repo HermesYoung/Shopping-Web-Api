@@ -32,7 +32,7 @@ namespace ManagementSite.Controllers
         {
             var categories = await _categoryRepository.GetAllCategoriesAsync();
             
-            return Ok(categories.Select(category => new CategoryView(category.Id, category.Name)));
+            return Ok(categories.Select(category => new CategoryResponse(category.Id, category.Name)));
         }
     }
 }
