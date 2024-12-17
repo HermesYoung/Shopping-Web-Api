@@ -3,6 +3,7 @@ using ManagementSite.Controllers.Models.Product;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Routing.Matching;
+using Microsoft.EntityFrameworkCore;
 using Repositories.Abstracts;
 using Repositories.Repositories.ProductRepository.Models;
 
@@ -33,5 +34,37 @@ namespace ManagementSite.Controllers
 
             return BadRequest(result.Error);
         }
+
+        [HttpGet]
+        public async Task<IActionResult> GetProducts([FromQuery] ProductQuery query)
+        {
+            var products = _productRepository.GetProducts();
+            if (query.CategoryId.HasValue)
+            {
+                products = products.Where(x => x.Categories.Any(category => category.Id == query.CategoryId));
+            }
+            
+            products = products.OrderBy(x => x.Id).Skip(query.PageSize * query.PageNumber).Take(query.PageSize);
+
+            var productList = await products.ToListAsync();
+            return Ok(productList.Select(product => new
+            {
+                product.Id,
+                product.Name,
+                product.Price,
+                product.Description,
+                product.Promotions,
+                Category = product.Categories.FirstOrDefault(),
+                product.IsDisabled,
+                product.IsSoldOut
+            }));
+        }
+    }
+
+    public class ProductQuery
+    {
+        public int? CategoryId { get; set; }
+        public int PageSize { get; set; }
+        public int PageNumber { get; set; }
     }
 }

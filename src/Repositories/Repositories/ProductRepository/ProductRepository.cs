@@ -82,23 +82,23 @@ internal class ProductRepository : IProductRepository
         return Result.Success();
     }
 
-    public async Task<IEnumerable<Product>> GetProductsAsync(int page, int pageSize)
+    public async Task<Result> ModifyProductCategoryAsync(Guid productId ,IEnumerable<int> categoriesIds)
     {
-        var products = await _shoppingWebDbContext.Products.Include(x => x.Categories).Where(x => x.Categories.Any())
-            .OrderBy(x => x.Categories.First().Id).Skip((page - 1) * pageSize).Take(pageSize).ToListAsync();
-        return products;
-    }
-
-    public async Task<Result<Product>> GetProductByIdAsync(Guid productId)
-    {
-        var product = await _shoppingWebDbContext.Products.Include(x => x.Categories)
-            .FirstOrDefaultAsync(x => x.Id == productId);
+        var categories = await _shoppingWebDbContext.Categories.Where(x => categoriesIds.Contains(x.Id)).ToListAsync();
+        var product = _shoppingWebDbContext.Products.FirstOrDefault(x => x.Id == productId);
         if (product == null)
         {
-            return Result<Product>.Failure(Error.Create("Product not found",
-                new ErrorMessage(ErrorCode.ProductNotFound, default)));
+            return Result.Failure(Error.Create("Product not found", new ErrorMessage(ErrorCode.ProductNotFound, default)));
         }
-
-        return Result<Product>.Success(product);
+        
+        product.Categories = categories;
+        _shoppingWebDbContext.Products.Update(product);
+        await _shoppingWebDbContext.SaveChangesAsync();
+        return Result.Success();
+    }
+    
+    public IQueryable<Product> GetProducts()
+    {
+       return _shoppingWebDbContext.Products.Include(x => x.Categories).AsQueryable();
     }
 }
