@@ -33,12 +33,12 @@ internal class ProductRepository : IProductRepository
                 Name = categorizedProduct.ProductDetail.Name,
                 Price = categorizedProduct.ProductDetail.Price,
                 Description = categorizedProduct.ProductDetail.Description,
-                IsSoldOut =  categorizedProduct.ProductDetail.IsSoldOut,
+                IsSoldOut = categorizedProduct.ProductDetail.IsSoldOut,
                 IsDisabled = categorizedProduct.ProductDetail.IsDisabled,
                 Id = Guid.NewGuid(),
             };
             product.Categories.Add(category);
-            
+
             productList.Add(product);
         }
 
@@ -50,12 +50,13 @@ internal class ProductRepository : IProductRepository
 
     public async Task<Result> DeleteProductAsync(Guid productId)
     {
-        var product = await _shoppingWebDbContext.Products.Include(x => x.Categories).FirstOrDefaultAsync(x => x.Id == productId);
+        var product = await _shoppingWebDbContext.Products.Include(x => x.Categories)
+            .FirstOrDefaultAsync(x => x.Id == productId);
         if (product == null)
         {
             return Result.Failure();
         }
-        
+
         product.Categories.Clear();
         _shoppingWebDbContext.Products.Update(product);
 
@@ -70,13 +71,34 @@ internal class ProductRepository : IProductRepository
         {
             return Result.Failure();
         }
+
         product.Name = productUpdateDetail.ProductDetail.Name;
         product.Price = productUpdateDetail.ProductDetail.Price;
         product.Description = productUpdateDetail.ProductDetail.Description;
         product.IsSoldOut = productUpdateDetail.ProductDetail.IsSoldOut;
         product.IsDisabled = productUpdateDetail.ProductDetail.IsDisabled;
-        
+
         await _shoppingWebDbContext.SaveChangesAsync();
         return Result.Success();
+    }
+
+    public async Task<IEnumerable<Product>> GetProductsAsync(int page, int pageSize)
+    {
+        var products = await _shoppingWebDbContext.Products.Include(x => x.Categories).Where(x => x.Categories.Any())
+            .OrderBy(x => x.Categories.First().Id).Skip((page - 1) * pageSize).Take(pageSize).ToListAsync();
+        return products;
+    }
+
+    public async Task<Result<Product>> GetProductByIdAsync(Guid productId)
+    {
+        var product = await _shoppingWebDbContext.Products.Include(x => x.Categories)
+            .FirstOrDefaultAsync(x => x.Id == productId);
+        if (product == null)
+        {
+            return Result<Product>.Failure(Error.Create("Product not found",
+                new ErrorMessage(ErrorCode.ProductNotFound, default)));
+        }
+
+        return Result<Product>.Success(product);
     }
 }
