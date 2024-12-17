@@ -4,7 +4,7 @@ public struct Result<TValue>
 {
     public TValue? Value { get; }
     public bool IsSuccess { get; }
-    public ErrorBase? Error { get; }
+    public Error? Error { get; }
 
     private Result(TValue? value)
     {
@@ -12,7 +12,7 @@ public struct Result<TValue>
         Value = value;
     }
 
-    private Result(ErrorBase error)
+    private Result(Error error)
     {
         IsSuccess = false;
         Error = error;
@@ -28,7 +28,7 @@ public struct Result<TValue>
         return new Result<TValue>(value);
     }
 
-    public static Result<TValue> Failure(ErrorBase error)
+    public static Result<TValue> Failure(Error error)
     {
         return new Result<TValue>(error);
     }
@@ -37,16 +37,16 @@ public struct Result<TValue>
 public struct Result
 {
     public bool IsSuccess { get; }
-    public ErrorBase? Error { get; }
+    public Error? Error { get; }
 
-    private Result(bool isSuccess, ErrorBase? error)
+    private Result(bool isSuccess, Error? error)
     {
         IsSuccess = isSuccess;
         Error = error;
     }
 
     public static Result Success() => new Result(true, null);
-    public static Result Failure(ErrorBase error) => new Result(false, error);
+    public static Result Failure(Error error) => new Result(false, error);
     public static Result Failure() => new Result(false, null);
 }
 

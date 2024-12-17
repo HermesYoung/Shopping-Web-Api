@@ -1,12 +1,27 @@
 ﻿namespace Repositories.Common;
 
-public abstract class ErrorBase(string message, object? data)
+public class Error
 {
-    public string Message { get; } = message;
-    protected object? Data { get; } = data;
+    public string Message { get; }
+    public ErrorMessage ErrorMessage { get; }
+
+    private Error(string message, ErrorMessage errorMessage)
+    {
+        Message = message;
+        ErrorMessage = errorMessage;
+    }
+
+    public static Error Create(string message, ErrorMessage data) => new Error(message, data);
 }
 
-public abstract class ErrorBase<TData>(string message, TData data) : ErrorBase(message, data)
+public class ErrorMessage(ErrorCode errorCode, object info)
 {
-    public TData? ErrorData => (TData?)Data;
+    public ErrorCode ErrorCode { get; } = errorCode;
+    public object Info { get; } = info;
+}
+
+public enum ErrorCode
+{
+    CategoryNotExists,
+    CategoryAlreadyExists
 }
