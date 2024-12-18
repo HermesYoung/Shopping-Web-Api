@@ -1,7 +1,7 @@
 ﻿namespace Repositories.Repositories.CategoryRepository.Models;
 
-public class CategoryDetail(int id, string name)
+public class CategoryDetail(Guid id, string name)
 {
-    public int Id { get; } = id;
+    public Guid Id { get; } = id;
     public string Name { get; } = name;
 }

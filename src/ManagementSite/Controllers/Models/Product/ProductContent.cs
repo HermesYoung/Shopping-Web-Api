@@ -4,6 +4,6 @@ namespace ManagementSite.Controllers.Models.Product;
 
 public class ProductContent
 {
-    public int CategoryId { get; set; }
+    public Guid CategoryId { get; set; }
     public required IEnumerable<ProductDetail> ProductDetails { get; set; }
 }

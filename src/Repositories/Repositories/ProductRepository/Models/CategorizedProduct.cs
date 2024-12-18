@@ -2,10 +2,10 @@
 
 public class CategorizedProduct
 {
-    public int CategoryId { get; }
+    public Guid CategoryId { get; }
     public ProductDetail ProductDetail { get; }
 
-    public CategorizedProduct(int categoryId, ProductDetail productDetail)
+    public CategorizedProduct(Guid categoryId, ProductDetail productDetail)
     {
         CategoryId = categoryId;
         ProductDetail = productDetail;

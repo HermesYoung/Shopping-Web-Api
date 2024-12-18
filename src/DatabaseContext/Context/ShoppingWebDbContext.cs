@@ -14,13 +14,11 @@ public partial class ShoppingWebDbContext : DbContext
 
     public virtual DbSet<Order> Orders { get; set; }
 
-    public virtual DbSet<OrderContent> OrderContents { get; set; }
-
     public virtual DbSet<Product> Products { get; set; }
 
-    public virtual DbSet<Promotion> Promotions { get; set; }
+    public virtual DbSet<ProductSell> ProductSells { get; set; }
 
-    public virtual DbSet<PurchaseHistory> PurchaseHistories { get; set; }
+    public virtual DbSet<Promotion> Promotions { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -47,16 +45,18 @@ public partial class ShoppingWebDbContext : DbContext
 
             entity.ToTable("order", "shopping_web");
 
-            entity.HasIndex(e => e.SerialNumber, "order_serial_number_uindex").IsUnique();
+            entity.HasIndex(e => new { e.Name, e.Email, e.Phone }, "order_name_email_phone_index");
 
-            entity.Property(e => e.Id).HasColumnName("id");
+            entity.Property(e => e.Id)
+                .ValueGeneratedNever()
+                .HasColumnName("id");
             entity.Property(e => e.Address)
-                .HasMaxLength(200)
+                .HasMaxLength(100)
                 .IsUnicode(false)
                 .HasColumnName("address");
-            entity.Property(e => e.Date)
-                .HasColumnType("datetime")
-                .HasColumnName("date");
+            entity.Property(e => e.ContentJson)
+                .IsUnicode(false)
+                .HasColumnName("content_json");
             entity.Property(e => e.Email)
                 .HasMaxLength(100)
                 .IsUnicode(false)
@@ -69,42 +69,6 @@ public partial class ShoppingWebDbContext : DbContext
                 .HasMaxLength(20)
                 .IsUnicode(false)
                 .HasColumnName("phone");
-            entity.Property(e => e.SerialNumber)
-                .HasMaxLength(20)
-                .IsUnicode(false)
-                .HasColumnName("serial_number");
-            entity.Property(e => e.Status).HasColumnName("status");
-        });
-
-        modelBuilder.Entity<OrderContent>(entity =>
-        {
-            entity
-                .HasNoKey()
-                .ToTable("order_content", "shopping_web");
-
-            entity.Property(e => e.OrderSn)
-                .HasMaxLength(20)
-                .IsUnicode(false)
-                .HasColumnName("order_sn");
-            entity.Property(e => e.Price).HasColumnName("price");
-            entity.Property(e => e.Product).HasColumnName("product");
-            entity.Property(e => e.Promotion).HasColumnName("promotion");
-
-            entity.HasOne(d => d.OrderSnNavigation).WithMany()
-                .HasPrincipalKey(p => p.SerialNumber)
-                .HasForeignKey(d => d.OrderSn)
-                .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("order_content_order_serial_number_fk");
-
-            entity.HasOne(d => d.ProductNavigation).WithMany()
-                .HasForeignKey(d => d.Product)
-                .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("order_content_product_id_fk");
-
-            entity.HasOne(d => d.PromotionNavigation).WithMany()
-                .HasForeignKey(d => d.Promotion)
-                .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("order_content_promotion_id_fk");
         });
 
         modelBuilder.Entity<Product>(entity =>
@@ -148,7 +112,7 @@ public partial class ShoppingWebDbContext : DbContext
                         j.HasKey("ProductId", "CategoryId").HasName("product_category_pk");
                         j.ToTable("product_category", "shopping_web");
                         j.IndexerProperty<Guid>("ProductId").HasColumnName("product_id");
-                        j.IndexerProperty<int>("CategoryId").HasColumnName("category_id");
+                        j.IndexerProperty<Guid>("CategoryId").HasColumnName("category_id");
                     });
 
             entity.HasMany(d => d.Promotions).WithMany(p => p.Products)
@@ -167,8 +131,34 @@ public partial class ShoppingWebDbContext : DbContext
                         j.HasKey("ProductId", "PromotionId").HasName("product_promotion_pk");
                         j.ToTable("product_promotion", "shopping_web");
                         j.IndexerProperty<Guid>("ProductId").HasColumnName("product_id");
-                        j.IndexerProperty<int>("PromotionId").HasColumnName("promotion_id");
+                        j.IndexerProperty<Guid>("PromotionId").HasColumnName("promotion_id");
                     });
+        });
+
+        modelBuilder.Entity<ProductSell>(entity =>
+        {
+            entity.HasKey(e => e.Id).HasName("product_sell_pk");
+
+            entity.ToTable("product_sell", "shopping_web");
+
+            entity.HasIndex(e => e.Date, "product_sell_date_index");
+
+            entity.Property(e => e.Id)
+                .ValueGeneratedNever()
+                .HasColumnName("id");
+            entity.Property(e => e.Date)
+                .HasColumnType("datetime")
+                .HasColumnName("date");
+            entity.Property(e => e.ProductId).HasColumnName("product_id");
+            entity.Property(e => e.Quantity).HasColumnName("quantity");
+            entity.Property(e => e.TotalPrice)
+                .HasColumnType("decimal(18, 0)")
+                .HasColumnName("total_price");
+
+            entity.HasOne(d => d.Product).WithMany(p => p.ProductSells)
+                .HasForeignKey(d => d.ProductId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("product_sell_product_id_fk");
         });
 
         modelBuilder.Entity<Promotion>(entity =>
@@ -181,7 +171,9 @@ public partial class ShoppingWebDbContext : DbContext
 
             entity.HasIndex(e => e.StartDate, "promotion_start_date_index");
 
-            entity.Property(e => e.Id).HasColumnName("id");
+            entity.Property(e => e.Id)
+                .ValueGeneratedNever()
+                .HasColumnName("id");
             entity.Property(e => e.ContentJson)
                 .IsUnicode(false)
                 .HasColumnName("content_json");
@@ -196,21 +188,6 @@ public partial class ShoppingWebDbContext : DbContext
                 .HasColumnType("datetime")
                 .HasColumnName("start_date");
             entity.Property(e => e.Title).HasColumnName("title");
-        });
-
-        modelBuilder.Entity<PurchaseHistory>(entity =>
-        {
-            entity
-                .HasNoKey()
-                .ToTable(" purchase_history", "shopping_web");
-
-            entity.HasIndex(e => e.PurchaseDate, "purchase_history_purchase_date_index");
-
-            entity.Property(e => e.OrderId).HasColumnName("order_id");
-            entity.Property(e => e.ProductId).HasColumnName("product_id");
-            entity.Property(e => e.PurchaseDate)
-                .HasColumnType("datetime")
-                .HasColumnName("purchase_date");
         });
 
         OnModelCreatingPartial(modelBuilder);

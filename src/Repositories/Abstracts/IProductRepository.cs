@@ -10,5 +10,5 @@ public interface IProductRepository
     Task<Result> DeleteProductAsync(Guid productId);
     Task<Result> UpdateProductAsync(Guid productId, ProductUpdateDetail productUpdateDetail);
     IQueryable<Product> GetProducts();
-    Task<Result> ModifyProductCategoryAsync(Guid productId ,IEnumerable<int> categoriesIds);
+    Task<Result> ModifyProductCategoryAsync(Guid productId, IEnumerable<Guid> categoriesIds);
 }

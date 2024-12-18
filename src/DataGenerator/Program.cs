@@ -21,7 +21,7 @@ public class Program
         var repository = serviceProvider.GetRequiredService<IProductRepository>();
 
         var categorizedProducts = new List<CategorizedProduct>
-            { new(0, new ProductDetail("name", "description", 100, false, false)) };
+            { new(Guid.NewGuid(), new ProductDetail("name", "description", 100, false, false)) };
         var result = await repository.AddProductsAsync(categorizedProducts);
         
         if (!result.IsSuccess)

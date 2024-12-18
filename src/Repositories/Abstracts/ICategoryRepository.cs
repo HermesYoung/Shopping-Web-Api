@@ -7,7 +7,7 @@ namespace Repositories.Abstracts;
 
 public interface ICategoryRepository
 {
-    Task<Result> AddCategoryAsync(int categoryId, string name);
-    Task<Result> DeleteCategoryAsync(int categoryId);
+    Task<Result> AddCategoryAsync(string name);
+    Task<Result> DeleteCategoryAsync(Guid categoryId);
     Task<List<CategoryDetail>> GetAllCategoriesAsync();
 }

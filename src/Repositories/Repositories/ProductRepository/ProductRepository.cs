@@ -77,12 +77,14 @@ internal class ProductRepository : IProductRepository
         product.Description = productUpdateDetail.ProductDetail.Description;
         product.IsSoldOut = productUpdateDetail.ProductDetail.IsSoldOut;
         product.IsDisabled = productUpdateDetail.ProductDetail.IsDisabled;
-
+        
+        _shoppingWebDbContext.Products.Update(product);
+        
         await _shoppingWebDbContext.SaveChangesAsync();
         return Result.Success();
     }
 
-    public async Task<Result> ModifyProductCategoryAsync(Guid productId ,IEnumerable<int> categoriesIds)
+    public async Task<Result> ModifyProductCategoryAsync(Guid productId ,IEnumerable<Guid> categoriesIds)
     {
         var categories = await _shoppingWebDbContext.Categories.Where(x => categoriesIds.Contains(x.Id)).ToListAsync();
         var product = _shoppingWebDbContext.Products.FirstOrDefault(x => x.Id == productId);

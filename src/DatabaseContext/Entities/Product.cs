@@ -14,6 +14,8 @@ public partial class Product
 
     public bool IsDisabled { get; set; }
 
+    public virtual ICollection<ProductSell> ProductSells { get; set; } = new List<ProductSell>();
+
     public virtual ICollection<Category> Categories { get; set; } = new List<Category>();
 
     public virtual ICollection<Promotion> Promotions { get; set; } = new List<Promotion>();

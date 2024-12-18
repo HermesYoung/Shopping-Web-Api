@@ -18,7 +18,7 @@ namespace ManagementSite.Controllers
         [HttpPost]
         public async Task<IActionResult> CreateCategoryAsync([FromBody] CategoryCreateBody body)
         {
-            var result = await _categoryRepository.AddCategoryAsync(body.CategoryId, body.Name);
+            var result = await _categoryRepository.AddCategoryAsync(body.Name);
             if (result.IsSuccess)
             {
                 return NoContent();
