@@ -23,6 +23,6 @@ public class ErrorMessage(ErrorCode errorCode, object? info)
 public enum ErrorCode
 {
     CategoryNotExists,
-    CategoryAlreadyExists,
-    ProductNotFound
+    ProductNotFound,
+    PromotionNotFound
 }
