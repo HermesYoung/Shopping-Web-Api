@@ -48,15 +48,24 @@ namespace ManagementSite.Controllers
             products = products.OrderBy(x => x.Id).Skip(query.PageSize * query.PageNumber).Take(query.PageSize);
 
             var productList = await products.ToListAsync();
-            return Ok(productList.Select(product => new
+            return Ok(productList.Select(product =>
             {
-                product.Id,
-                product.Name,
-                product.Price,
-                product.Description,
-                Category = product.Categories.FirstOrDefault(),
-                product.IsDisabled,
-                product.IsSoldOut
+                var categories = product.Categories.Select(x => new
+                {
+                    Id = x.Id,
+                    Name = x.Name
+                });
+                
+                return new
+                {
+                    product.Id,
+                    product.Name,
+                    product.Price,
+                    product.Description,
+                    Categories = categories,
+                    product.IsDisabled,
+                    product.IsSoldOut
+                };
             }));
         }
     }
