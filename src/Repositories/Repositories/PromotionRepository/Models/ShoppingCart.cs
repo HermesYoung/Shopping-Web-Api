@@ -15,20 +15,39 @@ public class ShoppingCart
         public string Name { get; set; }
         public double Price { get; set; }
         public int Quantity { get; set; }
+        public double? DiscountPrice { get; set; }
     }
 
-    public Summary GetSummary()
+    public Summary GetSummary(IEnumerable<PromotionContent> promotions)
     {
-        return Summary.FromProducts(Products);
+        return Summary.FromProducts(Products, promotions);
     }
 }
 
 public class Summary
 {
-    public static Summary FromProducts(IEnumerable<ShoppingCart.ProductInCart> products)
+    public static Summary FromProducts(IEnumerable<ShoppingCart.ProductInCart> products,
+        IEnumerable<PromotionContent> promotionContents)
     {
         var productInCarts = products.ToList();
-        return new Summary(productInCarts, productInCarts.Sum(p => p.Price * p.Quantity));
+        var promotions = promotionContents.SelectMany(x => x.Content).ToList();
+        var total = 0;
+        if (!promotions.Any())
+        {
+            total = (int)productInCarts.Sum(x => x.Price * x.Quantity);
+        }
+        else
+        {
+            foreach (var product in productInCarts)
+            {
+                var discountPrice = promotions.Select(x => x.GetPrice(product.Id ,product.Price)).Min();
+                total += discountPrice * product.Quantity;
+                product.DiscountPrice = Math.Abs(discountPrice - product.Price) < 0.1? null : discountPrice;
+            }
+        }
+        
+        return new Summary(productInCarts,
+            total);
     }
 
     public IEnumerable<ShoppingCart.ProductInCart> Items { get; set; }

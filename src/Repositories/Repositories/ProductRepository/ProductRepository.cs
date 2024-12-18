@@ -77,30 +77,36 @@ internal class ProductRepository : IProductRepository
         product.Description = productUpdateDetail.ProductDetail.Description;
         product.IsSoldOut = productUpdateDetail.ProductDetail.IsSoldOut;
         product.IsDisabled = productUpdateDetail.ProductDetail.IsDisabled;
-        
+
         _shoppingWebDbContext.Products.Update(product);
-        
+
         await _shoppingWebDbContext.SaveChangesAsync();
         return Result.Success();
     }
 
-    public async Task<Result> ModifyProductCategoryAsync(Guid productId ,IEnumerable<Guid> categoriesIds)
+    public async Task<Result> ModifyProductCategoryAsync(Guid productId, IEnumerable<Guid> categoriesIds)
     {
         var categories = await _shoppingWebDbContext.Categories.Where(x => categoriesIds.Contains(x.Id)).ToListAsync();
         var product = _shoppingWebDbContext.Products.FirstOrDefault(x => x.Id == productId);
         if (product == null)
         {
-            return Result.Failure(Error.Create("Product not found", new ErrorMessage(ErrorCode.ProductNotFound, default)));
+            return Result.Failure(Error.Create("Product not found",
+                new ErrorMessage(ErrorCode.ProductNotFound, default)));
         }
-        
+
         product.Categories = categories;
         _shoppingWebDbContext.Products.Update(product);
         await _shoppingWebDbContext.SaveChangesAsync();
         return Result.Success();
     }
-    
+
     public IQueryable<Product> GetProducts()
     {
-       return _shoppingWebDbContext.Products.Include(x => x.Categories).AsQueryable();
+        return _shoppingWebDbContext.Products.Include(x => x.Categories).AsQueryable();
+    }
+
+    public IQueryable<Product> GetProductWithPromotions()
+    {
+        return _shoppingWebDbContext.Products.Include(x => x.Categories).Include(x => x.Promotions).AsQueryable();
     }
 }

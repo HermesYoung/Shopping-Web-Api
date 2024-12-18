@@ -110,4 +110,17 @@ public class PromotionRepository : IPromotionRepository
         await _shoppingWebDbContext.SaveChangesAsync();
         return Result.Success();
     }
+
+    public async Task<IEnumerable<PromotionContent>> GetCurrentPromotionAsync()
+    {
+        var promotions = await _shoppingWebDbContext.Promotions.Where(x => x.StartDate <= DateTime.Now && x.EndDate >= DateTime.Now).ToListAsync();
+        return promotions.Select(promotion => new PromotionContent()
+        {
+            Title = promotion.Title,
+            StartDate = promotion.StartDate,
+            EndDate = promotion.EndDate,
+            DisplayContent = promotion.DisplayContent,
+            Content = JsonSerializer.Deserialize<IEnumerable<IPromotionProvider>>(promotion.ContentJson)!
+        });
+    }
 }
