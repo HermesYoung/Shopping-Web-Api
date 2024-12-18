@@ -50,7 +50,6 @@ namespace ManagementSite.Controllers
                 product.Name,
                 product.Price,
                 product.Description,
-                product.Promotions,
                 Category = product.Categories.FirstOrDefault(),
                 product.IsDisabled,
                 product.IsSoldOut
