@@ -13,4 +13,6 @@ public partial class Promotion
     public Guid Id { get; set; }
 
     public string Title { get; set; } = null!;
+
+    public virtual ICollection<Product> Products { get; set; } = new List<Product>();
 }

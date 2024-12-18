@@ -114,6 +114,25 @@ public partial class ShoppingWebDbContext : DbContext
                         j.IndexerProperty<Guid>("ProductId").HasColumnName("product_id");
                         j.IndexerProperty<Guid>("CategoryId").HasColumnName("category_id");
                     });
+
+            entity.HasMany(d => d.Promotions).WithMany(p => p.Products)
+                .UsingEntity<Dictionary<string, object>>(
+                    "ProductPromotion",
+                    r => r.HasOne<Promotion>().WithMany()
+                        .HasForeignKey("PromotionId")
+                        .OnDelete(DeleteBehavior.ClientSetNull)
+                        .HasConstraintName("product_promotion_promotion_id_fk"),
+                    l => l.HasOne<Product>().WithMany()
+                        .HasForeignKey("ProductId")
+                        .OnDelete(DeleteBehavior.ClientSetNull)
+                        .HasConstraintName("product_promotion_product_id_fk"),
+                    j =>
+                    {
+                        j.HasKey("ProductId", "PromotionId").HasName("product_promotion_pk");
+                        j.ToTable("product_promotion", "shopping_web");
+                        j.IndexerProperty<Guid>("ProductId").HasColumnName("product_id");
+                        j.IndexerProperty<Guid>("PromotionId").HasColumnName("promotion_id");
+                    });
         });
 
         modelBuilder.Entity<ProductSell>(entity =>
