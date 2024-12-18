@@ -2,12 +2,6 @@
 
 public class CategorizedProduct
 {
-    public Guid CategoryId { get; }
-    public ProductDetail ProductDetail { get; }
-
-    public CategorizedProduct(Guid categoryId, ProductDetail productDetail)
-    {
-        CategoryId = categoryId;
-        ProductDetail = productDetail;
-    }
+    public Guid CategoryId { get; set; }
+    public ProductDetail ProductDetail { get; set; }
 }

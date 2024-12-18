@@ -1,5 +1,6 @@
 ﻿using DatabaseContext.Context;
 using DatabaseContext.Entities;
+using DataGenerator.DataGenerators;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Repositories.Abstracts;
@@ -14,19 +15,34 @@ public class Program
     static async Task Main(string[] args)
     {
         var services = new ServiceCollection();
-        services.AddDbContext(args[0]).AddRepositories();
+        services.AddDbContext(args[0]).AddRepositories()
+            .AddSingleton<CategoryDataGenerator>()
+            .AddSingleton<ProductGenerator>();
 
         var serviceProvider = services.BuildServiceProvider();
-
-        var repository = serviceProvider.GetRequiredService<IProductRepository>();
-
-        var categorizedProducts = new List<CategorizedProduct>
-            { new(Guid.NewGuid(), new ProductDetail("name", "description", 100, false, false)) };
-        var result = await repository.AddProductsAsync(categorizedProducts);
         
-        if (!result.IsSuccess)
+        var categoryDataGenerator = serviceProvider.GetRequiredService<CategoryDataGenerator>();
+        var productGenerator = serviceProvider.GetRequiredService<ProductGenerator>();
+        Console.WriteLine("Generate categories");
+        var categoriesGenerateResult = await categoryDataGenerator.GenerateAsync(10);
+        if (!categoriesGenerateResult.IsSuccess)
         {
-            Console.WriteLine(result.Error);
+            Console.WriteLine("Failed to create categories");
+            return;
         }
+
+        Console.WriteLine("Finished generating categories");
+        
+        Console.WriteLine("Generate products");
+        var productsGenerateResult = await productGenerator.GenerateAsync(100);
+        if (!productsGenerateResult.IsSuccess)
+        {
+            Console.WriteLine("Failed to create products");
+            return;
+        }
+
+        Console.WriteLine("Finished generating products");
+        
+        Console.WriteLine("Data generated");
     }
 }

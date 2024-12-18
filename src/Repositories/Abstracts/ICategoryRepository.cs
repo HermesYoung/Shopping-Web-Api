@@ -10,4 +10,5 @@ public interface ICategoryRepository
     Task<Result> AddCategoryAsync(string name);
     Task<Result> DeleteCategoryAsync(Guid categoryId);
     Task<List<CategoryDetail>> GetAllCategoriesAsync();
+    Task<Result> AddCategoriesAsync(IEnumerable<string> names);
 }

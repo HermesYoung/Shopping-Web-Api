@@ -22,7 +22,11 @@ namespace ManagementSite.Controllers
         {
             var categorizedProducts = body.Content
                 .SelectMany(productContent => productContent.ProductDetails.Select(productDetail =>
-                    new CategorizedProduct(productContent.CategoryId, productDetail))).ToList();
+                    new CategorizedProduct()
+                    {
+                        CategoryId = productContent.CategoryId,
+                        ProductDetail = productDetail
+                    })).ToList();
             var result = await _productRepository.AddProductsAsync(categorizedProducts);
             if (result.IsSuccess)
             {

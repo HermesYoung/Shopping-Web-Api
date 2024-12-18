@@ -16,6 +16,14 @@ internal class CategoryRepository(ShoppingWebDbContext shoppingWebDbContext) : I
         return Result.Success();
     }
 
+    public async Task<Result> AddCategoriesAsync(IEnumerable<string> names)
+    {
+        var categories = names.Select(name => new Category { Name = name, Id = Guid.NewGuid() }).ToList();
+        shoppingWebDbContext.Categories.AddRange(categories);
+        await shoppingWebDbContext.SaveChangesAsync();
+        return Result.Success();
+    }
+
     public async Task<Result> DeleteCategoryAsync(Guid categoryId)
     {
         var category = shoppingWebDbContext.Categories.FirstOrDefault(c => c.Id == categoryId);
