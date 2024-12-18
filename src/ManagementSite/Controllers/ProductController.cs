@@ -1,8 +1,5 @@
-using DatabaseContext.Entities;
 using ManagementSite.Controllers.Models.Product;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Routing.Matching;
 using Microsoft.EntityFrameworkCore;
 using Repositories.Abstracts;
 using Repositories.Repositories.ProductRepository.Models;
