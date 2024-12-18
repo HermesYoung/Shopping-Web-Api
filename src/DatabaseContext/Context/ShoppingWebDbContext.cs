@@ -45,6 +45,8 @@ public partial class ShoppingWebDbContext : DbContext
 
             entity.ToTable("order", "shopping_web");
 
+            entity.HasIndex(e => e.CreateDate, "order_create_date_index");
+
             entity.HasIndex(e => new { e.Name, e.Email, e.Phone }, "order_name_email_phone_index");
 
             entity.Property(e => e.Id)
@@ -57,6 +59,9 @@ public partial class ShoppingWebDbContext : DbContext
             entity.Property(e => e.ContentJson)
                 .IsUnicode(false)
                 .HasColumnName("content_json");
+            entity.Property(e => e.CreateDate)
+                .HasColumnType("datetime")
+                .HasColumnName("create_date");
             entity.Property(e => e.Email)
                 .HasMaxLength(100)
                 .IsUnicode(false)
@@ -149,11 +154,17 @@ public partial class ShoppingWebDbContext : DbContext
             entity.Property(e => e.Date)
                 .HasColumnType("datetime")
                 .HasColumnName("date");
+            entity.Property(e => e.OrderId).HasColumnName("order_id");
             entity.Property(e => e.ProductId).HasColumnName("product_id");
             entity.Property(e => e.Quantity).HasColumnName("quantity");
             entity.Property(e => e.TotalPrice)
                 .HasColumnType("decimal(18, 0)")
                 .HasColumnName("total_price");
+
+            entity.HasOne(d => d.Order).WithMany(p => p.ProductSells)
+                .HasForeignKey(d => d.OrderId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("product_sell_order_id_fk");
 
             entity.HasOne(d => d.Product).WithMany(p => p.ProductSells)
                 .HasForeignKey(d => d.ProductId)

@@ -13,4 +13,8 @@ public partial class Order
     public string Email { get; set; } = null!;
 
     public string ContentJson { get; set; } = null!;
+
+    public DateTime CreateDate { get; set; }
+
+    public virtual ICollection<ProductSell> ProductSells { get; set; } = new List<ProductSell>();
 }
