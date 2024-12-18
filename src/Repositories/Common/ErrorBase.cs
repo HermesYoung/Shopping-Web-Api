@@ -25,5 +25,6 @@ public enum ErrorCode
     CategoryNotExists,
     ProductNotFound,
     PromotionNotFound,
-    NoPromotionProvider
+    NoPromotionProvider,
+    OrderNotFound
 }

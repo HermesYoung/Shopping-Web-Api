@@ -3,6 +3,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Repositories.Abstracts;
 using Repositories.Repositories.CategoryRepository;
+using Repositories.Repositories.OrderRepository;
 using Repositories.Repositories.ProductRepository;
 using Repositories.Repositories.PromotionRepository;
 
@@ -15,6 +16,7 @@ public static class RepositoryExtensions
         services.AddTransient<IProductRepository, ProductRepository>();
         services.AddTransient<ICategoryRepository, CategoryRepository>();
         services.AddTransient<IPromotionRepository, PromotionRepository>();
+        services.AddTransient<IOrderRepository, OrderRepository>();
         return services;
     }
 

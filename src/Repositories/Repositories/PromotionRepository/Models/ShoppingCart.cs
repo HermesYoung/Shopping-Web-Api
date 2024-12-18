@@ -18,15 +18,15 @@ public class ShoppingCart
         public double? DiscountPrice { get; set; }
     }
 
-    public Summary GetSummary(IEnumerable<PromotionContent> promotions)
+    public Receipt GetSummary(IEnumerable<PromotionContent> promotions)
     {
-        return Summary.FromProducts(Products, promotions);
+        return Receipt.FromProducts(Products, promotions);
     }
 }
 
-public class Summary
+public class Receipt
 {
-    public static Summary FromProducts(IEnumerable<ShoppingCart.ProductInCart> products,
+    public static Receipt FromProducts(IEnumerable<ShoppingCart.ProductInCart> products,
         IEnumerable<PromotionContent> promotionContents)
     {
         var productInCarts = products.ToList();
@@ -46,7 +46,7 @@ public class Summary
             }
         }
         
-        return new Summary(productInCarts,
+        return new Receipt(productInCarts,
             total);
     }
 
@@ -54,7 +54,7 @@ public class Summary
 
     public double Total { get; set; }
 
-    private Summary(IEnumerable<ShoppingCart.ProductInCart> items, double total)
+    private Receipt(IEnumerable<ShoppingCart.ProductInCart> items, double total)
     {
         Items = items;
         Total = total;
