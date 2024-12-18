@@ -1,4 +1,6 @@
-﻿namespace Repositories.Common;
+﻿using Repositories.Repositories.PromotionRepository.Models;
+
+namespace Repositories.Common;
 
 public struct Result<TValue>
 {

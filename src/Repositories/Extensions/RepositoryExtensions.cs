@@ -4,6 +4,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Repositories.Abstracts;
 using Repositories.Repositories.CategoryRepository;
 using Repositories.Repositories.ProductRepository;
+using Repositories.Repositories.PromotionRepository;
 
 namespace Repositories.Extensions;
 
@@ -13,6 +14,7 @@ public static class RepositoryExtensions
     {
         services.AddTransient<IProductRepository, ProductRepository>();
         services.AddTransient<ICategoryRepository, CategoryRepository>();
+        services.AddTransient<IPromotionRepository, PromotionRepository>();
         return services;
     }
 

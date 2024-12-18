@@ -17,8 +17,14 @@ public class PromotionRepository : IPromotionRepository
         _shoppingWebDbContext = shoppingWebDbContext;
     }
 
-    public async Task<Result> CreatePromotion(PromotionContent content)
+    public async Task<Result> CreatePromotionAsync(PromotionContent content)
     {
+        var result = CheckProductExistsAsync(content);
+        if (!result.IsSuccess)
+        {
+            return result;
+        }
+
         _shoppingWebDbContext.Promotions.Add(new Promotion()
         {
             Id = Guid.NewGuid(),
@@ -33,8 +39,26 @@ public class PromotionRepository : IPromotionRepository
         return Result.Success();
     }
 
-    public async Task<Result> UpdatePromotion(Guid promotionId, PromotionContent content)
+    private Result CheckProductExistsAsync(PromotionContent content)
     {
+        var products = content.Content.SelectMany(x => x.TargetProducts).Distinct().ToList();
+        var count = _shoppingWebDbContext.Products.Count(x => products.Contains(x.Id));
+        if (products.Count != count)
+        {
+            return Result.Failure(Error.Create("Some products do not exist!", new ErrorMessage(ErrorCode.ProductNotFound)));
+        }
+
+        return Result.Success();
+    }
+
+    public async Task<Result> UpdatePromotionAsync(Guid promotionId, PromotionContent content)
+    {
+        var result = CheckProductExistsAsync(content);
+        if (!result.IsSuccess)
+        {
+            return result;
+        }
+        
         var promotion = await _shoppingWebDbContext.Promotions.FindAsync(promotionId);
         if (promotion == null)
         {
@@ -65,5 +89,18 @@ public class PromotionRepository : IPromotionRepository
             StartDate = x.StartDate,
             EndDate = x.EndDate
         });
+    }
+
+    public async Task<Result> DeletePromotionAsync(Guid promotionId)
+    {
+        var promotion = await _shoppingWebDbContext.Promotions.FindAsync(promotionId);
+        if (promotion == null)
+        {
+            return Result.Failure(Error.Create("Promotion not found", new ErrorMessage(ErrorCode.PromotionNotFound, promotionId)));
+        }
+        
+        _shoppingWebDbContext.Promotions.Remove(promotion);
+        await _shoppingWebDbContext.SaveChangesAsync();
+        return Result.Success();
     }
 }

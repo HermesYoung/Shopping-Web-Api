@@ -14,7 +14,7 @@ public class Error
     public static Error Create(string message, ErrorMessage data) => new Error(message, data);
 }
 
-public class ErrorMessage(ErrorCode errorCode, object? info)
+public class ErrorMessage(ErrorCode errorCode, object? info = null)
 {
     public ErrorCode ErrorCode { get; } = errorCode;
     public object? Info { get; } = info;
@@ -24,5 +24,6 @@ public enum ErrorCode
 {
     CategoryNotExists,
     ProductNotFound,
-    PromotionNotFound
+    PromotionNotFound,
+    NoPromotionProvider
 }

@@ -3,19 +3,16 @@
 public interface IPromotionProvider
 {
     public PromotionType PromotionType { get; }
+    public IEnumerable<Guid> TargetProducts { get; }
     public ShoppingCart ApplyDiscount(ShoppingCart shoppingCart);
 }
 
 public class SpecialOfferProvider : IPromotionProvider
 {
     public PromotionType PromotionType => PromotionType.SpecialOffer;
-    public Dictionary<Guid, double> ProductSpecialOfferPrices { get; }
+    public IEnumerable<Guid> TargetProducts => ProductSpecialOfferPrices.Keys.ToList();
+    public required Dictionary<Guid, double> ProductSpecialOfferPrices { get; set; }
 
-    public SpecialOfferProvider(Dictionary<Guid, double> productSpecialOfferPrices)
-    {
-        ProductSpecialOfferPrices = productSpecialOfferPrices;
-    }
-    
     public ShoppingCart ApplyDiscount(ShoppingCart shoppingCart)
     {
         var products = shoppingCart.Products.ToList();
@@ -23,10 +20,10 @@ public class SpecialOfferProvider : IPromotionProvider
         {
             if (ProductSpecialOfferPrices.TryGetValue(product.Id, out var productPrice))
             {
-               product.Price = productPrice;
+                product.Price = productPrice;
             }
         }
-        
+
         shoppingCart.Products = products;
         return shoppingCart;
     }
@@ -35,7 +32,9 @@ public class SpecialOfferProvider : IPromotionProvider
 public class DiscountProvider : IPromotionProvider
 {
     public PromotionType PromotionType => PromotionType.Discount;
-    public Dictionary<Guid, double> ProductDiscountPercecnt { get; }
+    public IEnumerable<Guid> TargetProducts => ProductDiscountPercecnt.Keys.ToList();
+    public required Dictionary<Guid, double> ProductDiscountPercecnt { get; set; }
+
     public ShoppingCart ApplyDiscount(ShoppingCart shoppingCart)
     {
         var products = shoppingCart.Products.ToList();
@@ -46,7 +45,7 @@ public class DiscountProvider : IPromotionProvider
                 product.Price = value * product.Price;
             }
         }
-        
+
         shoppingCart.Products = products;
         return shoppingCart;
     }
