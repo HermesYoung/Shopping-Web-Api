@@ -49,6 +49,8 @@ public partial class ShoppingWebDbContext : DbContext
 
             entity.HasIndex(e => new { e.Name, e.Email, e.Phone }, "order_name_email_phone_index");
 
+            entity.HasIndex(e => e.Status, "order_status_index");
+
             entity.Property(e => e.Id)
                 .ValueGeneratedNever()
                 .HasColumnName("id");
@@ -74,6 +76,7 @@ public partial class ShoppingWebDbContext : DbContext
                 .HasMaxLength(20)
                 .IsUnicode(false)
                 .HasColumnName("phone");
+            entity.Property(e => e.Status).HasColumnName("status");
         });
 
         modelBuilder.Entity<Product>(entity =>

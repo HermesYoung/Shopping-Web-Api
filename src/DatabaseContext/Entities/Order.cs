@@ -16,5 +16,7 @@ public partial class Order
 
     public DateTime CreateDate { get; set; }
 
+    public int Status { get; set; }
+
     public virtual ICollection<ProductSell> ProductSells { get; set; } = new List<ProductSell>();
 }
