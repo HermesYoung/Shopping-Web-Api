@@ -5,6 +5,7 @@ public interface IPromotionProvider
     public PromotionType PromotionType { get; }
     public IEnumerable<Guid> TargetProducts { get; }
     public ShoppingCart ApplyDiscount(ShoppingCart shoppingCart);
+    public int GetPrice(Guid targetProductId, double originalPrice);
 }
 
 public class SpecialOfferProvider : IPromotionProvider
@@ -27,6 +28,13 @@ public class SpecialOfferProvider : IPromotionProvider
         shoppingCart.Products = products;
         return shoppingCart;
     }
+
+    public int GetPrice(Guid targetProductId, double originalPrice)
+    {
+        return (int)(ProductSpecialOfferPrices.TryGetValue(targetProductId, out var productPrice)
+            ? Math.Floor(productPrice)
+            : originalPrice);
+    }
 }
 
 public class DiscountProvider : IPromotionProvider
@@ -48,5 +56,15 @@ public class DiscountProvider : IPromotionProvider
 
         shoppingCart.Products = products;
         return shoppingCart;
+    }
+
+    public int GetPrice(Guid targetProductId, double originalPrice)
+    {
+        if (ProductDiscountPercecnt.TryGetValue(targetProductId, out var value))
+        {
+            return (int)Math.Floor(value * originalPrice);
+        }
+
+        return (int)originalPrice;
     }
 }

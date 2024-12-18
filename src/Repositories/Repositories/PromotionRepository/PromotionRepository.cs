@@ -22,7 +22,7 @@ public class PromotionRepository : IPromotionRepository
         var result = CheckProductExistsAsync(content);
         if (!result.IsSuccess)
         {
-            return result;
+            return Result.Failure(result.Error!);
         }
 
         _shoppingWebDbContext.Promotions.Add(new Promotion()
@@ -32,34 +32,37 @@ public class PromotionRepository : IPromotionRepository
             StartDate = content.StartDate,
             EndDate = content.EndDate,
             ContentJson = JsonSerializer.Serialize(content.Content),
-            DisplayContent = content.DisplayContent
+            DisplayContent = content.DisplayContent,
+            Products = result.Value!
         });
 
         await _shoppingWebDbContext.SaveChangesAsync();
         return Result.Success();
     }
 
-    private Result CheckProductExistsAsync(PromotionContent content)
+    private Result<List<Product>> CheckProductExistsAsync(PromotionContent content)
     {
-        var products = content.Content.SelectMany(x => x.TargetProducts).Distinct().ToList();
-        var count = _shoppingWebDbContext.Products.Count(x => products.Contains(x.Id));
-        if (products.Count != count)
+        var productIds = content.Content.SelectMany(x => x.TargetProducts).Distinct().ToList();
+        var products = _shoppingWebDbContext.Products.Where(x => productIds.Contains(x.Id)).ToList();
+        if (products.Count != productIds.Count)
         {
-            return Result.Failure(Error.Create("Some products do not exist!", new ErrorMessage(ErrorCode.ProductNotFound)));
+            return Result<List<Product>>.Failure(Error.Create("Some products do not exist!",
+                new ErrorMessage(ErrorCode.ProductNotFound)));
         }
 
-        return Result.Success();
+        return Result<List<Product>>.Success(products);
     }
 
     public async Task<Result> UpdatePromotionAsync(Guid promotionId, PromotionContent content)
     {
-        var result = CheckProductExistsAsync(content);
-        if (!result.IsSuccess)
+        var productCheckResult = CheckProductExistsAsync(content);
+        if (!productCheckResult.IsSuccess)
         {
-            return result;
+            return Result.Failure(productCheckResult.Error!);
         }
-        
-        var promotion = await _shoppingWebDbContext.Promotions.FindAsync(promotionId);
+
+        var promotion = await _shoppingWebDbContext.Promotions.Include(x => x.Products)
+            .FirstOrDefaultAsync(x => x.Id == promotionId);
         if (promotion == null)
         {
             return Result.Failure(Error.Create("Promotion not found",
@@ -70,6 +73,9 @@ public class PromotionRepository : IPromotionRepository
         promotion.StartDate = content.StartDate;
         promotion.EndDate = content.EndDate;
         promotion.ContentJson = JsonSerializer.Serialize(content);
+        promotion.DisplayContent = content.DisplayContent;
+        promotion.Products = productCheckResult.Value!;
+        
         _shoppingWebDbContext.Promotions.Update(promotion);
         await _shoppingWebDbContext.SaveChangesAsync();
 
@@ -96,9 +102,10 @@ public class PromotionRepository : IPromotionRepository
         var promotion = await _shoppingWebDbContext.Promotions.FindAsync(promotionId);
         if (promotion == null)
         {
-            return Result.Failure(Error.Create("Promotion not found", new ErrorMessage(ErrorCode.PromotionNotFound, promotionId)));
+            return Result.Failure(Error.Create("Promotion not found",
+                new ErrorMessage(ErrorCode.PromotionNotFound, promotionId)));
         }
-        
+
         _shoppingWebDbContext.Promotions.Remove(promotion);
         await _shoppingWebDbContext.SaveChangesAsync();
         return Result.Success();
