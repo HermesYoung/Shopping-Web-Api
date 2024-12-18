@@ -1,4 +1,6 @@
-﻿using DatabaseContext.Entities;
+﻿using System;
+using System.Collections.Generic;
+using DatabaseContext.Entities;
 using Microsoft.EntityFrameworkCore;
 
 namespace DatabaseContext.Context;
@@ -187,7 +189,10 @@ public partial class ShoppingWebDbContext : DbContext
             entity.Property(e => e.StartDate)
                 .HasColumnType("datetime")
                 .HasColumnName("start_date");
-            entity.Property(e => e.Title).HasColumnName("title");
+            entity.Property(e => e.Title)
+                .HasMaxLength(20)
+                .IsUnicode(false)
+                .HasColumnName("title");
         });
 
         OnModelCreatingPartial(modelBuilder);
