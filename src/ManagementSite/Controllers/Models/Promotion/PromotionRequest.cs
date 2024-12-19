@@ -2,7 +2,7 @@
 
 namespace ManagementSite.Controllers.Models.Promotion;
 
-public class PromotionCreateRequest
+public class PromotionRequest
 {
     public required string Title { get; set; }
     public SpecialOfferProvider? SpecialOffer { get; set; }

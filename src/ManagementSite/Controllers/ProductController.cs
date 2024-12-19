@@ -100,7 +100,7 @@ namespace ManagementSite.Controllers
             return Ok(id);
         }
 
-        [HttpPut("{id}/ChangeCategory")]
+        [HttpPut("{id}/Category")]
         public async Task<IActionResult> ChangeCategoryAsync(Guid id, [FromBody] IEnumerable<Guid> categories)
         {
             var result = await _productRepository.ModifyProductCategoryAsync(id, categories);

@@ -21,9 +21,9 @@ namespace ManagementSite.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> CreatePromotion(PromotionCreateRequest promotionCreate)
+        public async Task<IActionResult> CreatePromotion(PromotionRequest promotion)
         {
-            var contentCreateResult = CreateContent(promotionCreate);
+            var contentCreateResult = CreateContent(promotion);
 
             if (!contentCreateResult.IsSuccess)
             {
@@ -39,17 +39,17 @@ namespace ManagementSite.Controllers
             return NoContent();
         }
 
-        private Result<PromotionContent> CreateContent(PromotionCreateRequest promotionCreate)
+        private Result<PromotionContent> CreateContent(PromotionRequest promotion)
         {
             var providers = new List<IPromotionProvider>();
-            if (promotionCreate.SpecialOffer != null)
+            if (promotion.SpecialOffer != null)
             {
-                providers.Add(promotionCreate.SpecialOffer);
+                providers.Add(promotion.SpecialOffer);
             }
 
-            if (promotionCreate.Discount != null)
+            if (promotion.Discount != null)
             {
-                providers.Add(promotionCreate.Discount);
+                providers.Add(promotion.Discount);
             }
             
             if (providers.Count == 0)
@@ -59,18 +59,18 @@ namespace ManagementSite.Controllers
 
             var promotionContent = new PromotionContent
             {
-                StartDate = promotionCreate.StartDate,
-                EndDate = promotionCreate.EndDate,
-                Title = promotionCreate.Title,
-                DisplayContent = promotionCreate.DisplayContent,
+                StartDate = promotion.StartDate,
+                EndDate = promotion.EndDate,
+                Title = promotion.Title,
+                DisplayContent = promotion.DisplayContent,
                 Content = providers
             };
             
             return Result<PromotionContent>.Success(promotionContent);
         }
 
-        [HttpPut]
-        public async Task<IActionResult> UpdatePromotion(PromotionUpdateRequest promotionUpdate)
+        [HttpPut("{id}")]
+        public async Task<IActionResult> UpdatePromotion(Guid id ,[FromBody]PromotionRequest promotionUpdate)
         {
             var contentUpdateResult = CreateContent(promotionUpdate);
             if (!contentUpdateResult.IsSuccess)
@@ -78,13 +78,13 @@ namespace ManagementSite.Controllers
                 return BadRequest(contentUpdateResult.Error);
             }
             
-            var result = await _promotionRepository.UpdatePromotionAsync(promotionUpdate.Id ,contentUpdateResult.Value!);
+            var result = await _promotionRepository.UpdatePromotionAsync(id,contentUpdateResult.Value!);
             if (!result.IsSuccess)
             {
                 return BadRequest(result.Error);
             }
             
-            return Ok(promotionUpdate.Id);
+            return Ok(id);
         }
 
         [HttpGet]
@@ -95,7 +95,7 @@ namespace ManagementSite.Controllers
             return Ok(result);
         }
 
-        [HttpDelete("/{id}")]
+        [HttpDelete("{id}")]
         public async Task<IActionResult> DeletePromotion(Guid id)
         {
             var result = await _promotionRepository.DeletePromotionAsync(id);
