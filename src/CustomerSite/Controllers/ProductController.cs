@@ -45,7 +45,7 @@ namespace CustomerSite.Controllers
         }
 
         [HttpPost("ShoppingCartSummary")]
-        public async Task<IActionResult> CheckoutAsync([FromBody] ShoppingCart shoppingCart)
+        public async Task<IActionResult> GetShoppingCartSummaryAsync([FromBody] ShoppingCart shoppingCart)
         {
             var promotions = await _promotionRepository.GetCurrentPromotionAsync();
             var result = shoppingCart.GetSummary(promotions);
