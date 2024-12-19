@@ -26,5 +26,6 @@ public enum ErrorCode
     ProductNotFound,
     PromotionNotFound,
     NoPromotionProvider,
-    OrderNotFound
+    OrderNotFound,
+    InvalidOrderStatus
 }

@@ -1,4 +1,6 @@
-﻿namespace Repositories.Repositories.OrderRepository.Models;
+﻿using Repositories.Common;
+
+namespace Repositories.Repositories.OrderRepository.Models;
 
 public class OrderStatus
 {
@@ -24,5 +26,17 @@ public class OrderStatus
             2 => Done,
             _ => throw new ArgumentOutOfRangeException(nameof(statusCode), statusCode, null)
         };
+    }
+
+    public static Result<OrderStatus> TryParse(int statusCode)
+    {
+        try
+        {
+            return Result<OrderStatus>.Success(Parse(statusCode));
+        }
+        catch (ArgumentOutOfRangeException)
+        {
+            return Result<OrderStatus>.Failure(Error.Create("Invalid order status", new ErrorMessage(ErrorCode.InvalidOrderStatus)));
+        }
     }
 }

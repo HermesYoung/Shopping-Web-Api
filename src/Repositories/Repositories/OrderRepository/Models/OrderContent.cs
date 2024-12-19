@@ -13,5 +13,6 @@ public class OrderContent
 
 public class OrderDetails : OrderContent
 {
-    public OrderStatus OrderStatus { get; set; }
+    public required Guid Id { get; set; }
+    public required OrderStatus OrderStatus { get; set; }
 }

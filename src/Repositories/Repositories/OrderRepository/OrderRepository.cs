@@ -74,6 +74,7 @@ internal class OrderRepository : IOrderRepository
 
         return orderList.Select(x => new OrderDetails()
         {
+            Id = x.Id,
             Name = x.Name,
             Phone = x.Phone,
             Address = x.Address,
@@ -99,6 +100,7 @@ internal class OrderRepository : IOrderRepository
         var orders = await query.ToListAsync();
         return orders.Select(x => new OrderDetails
         {
+            Id = x.Id,
             Phone = x.Phone,
             Address = x.Address,
             Email = x.Email,
@@ -119,5 +121,25 @@ internal class OrderRepository : IOrderRepository
         _shoppingWebDbContext.Orders.Update(order);
         await _shoppingWebDbContext.SaveChangesAsync();
         return Result.Success();
+    }
+
+    public async Task<Result<OrderDetails>> GetOrderByIdAsync(Guid orderId)
+    {
+        var order = await _shoppingWebDbContext.Orders.FindAsync(orderId);
+        if (order == null)
+        {
+            return Result<OrderDetails>.Failure(Error.Create("Order not found", new ErrorMessage(ErrorCode.OrderNotFound)));
+        }
+
+        return Result<OrderDetails>.Success(new OrderDetails()
+        {
+            Id = order.Id,
+            Name = order.Name,
+            Phone = order.Phone,
+            Address = order.Address,
+            Email = order.Email,
+            Receipt = JsonSerializer.Deserialize<Receipt>(order.ContentJson)!,
+            OrderStatus = OrderStatus.Parse(order.Status)
+        });
     }
 }
