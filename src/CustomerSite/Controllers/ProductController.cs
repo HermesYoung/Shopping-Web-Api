@@ -1,6 +1,7 @@
-using ManagementSite.Controllers;
+using CustomerSite.Controllers.Models;
 using Microsoft.AspNetCore.Mvc;
 using Repositories.Abstracts;
+using Repositories.Common;
 using Repositories.Repositories.PromotionRepository.Models;
 using JsonSerializer = System.Text.Json.JsonSerializer;
 
@@ -28,8 +29,8 @@ namespace CustomerSite.Controllers
                 baseQuery = baseQuery.Where(x => x.Categories.Any(y => y.Id == query.CategoryId.Value));
             }
 
-            baseQuery = baseQuery.OrderBy(x => x.Name).Skip(query.PageSize * (query.PageNumber - 1))
-                .Take(query.PageSize);
+            baseQuery = baseQuery.OrderBy(x => x.Name).Skip((int)(query.PageSize * query.PageNumber))
+                .Take((int)query.PageSize);
             var products = baseQuery.ToList();
             return Ok(products.Select(x => new
             {
@@ -43,11 +44,40 @@ namespace CustomerSite.Controllers
                     : x.Price,
             }));
         }
+        
+        [HttpGet("{id}")]
+        public async Task<IActionResult> GetProductByIdAsync(Guid id)
+        {
+            var result = await _productRepository.GetProductDetailByIdAsync(id);
+            if (!result.IsSuccess)
+            {
+                if (result.Error!.ErrorMessage.ErrorCode == ErrorCode.ProductNotFound)
+                {
+                    return NotFound(id);
+                }
+
+                return BadRequest(result.Error);
+            }
+
+            return Ok(result.Value!);
+        }
+
 
         [HttpPost("ShoppingCartSummary")]
-        public async Task<IActionResult> GetShoppingCartSummaryAsync([FromBody] ShoppingCart shoppingCart)
+        public async Task<IActionResult> GetShoppingCartSummaryAsync([FromBody] Cart cart)
         {
             var promotions = await _promotionRepository.GetCurrentPromotionAsync();
+            var productsPriceByIds =
+                await _productRepository.GetProductsPriceByIds(cart.Products.Select(x => x.Id));
+            var productPricesDictionary = productsPriceByIds.ToDictionary(price => price.Id, price => price);
+            var shoppingCart = new ShoppingCart(cart.Products.Select(x => new ShoppingCart.ProductInCart()
+            {
+                Id = x.Id,
+                DiscountPrice = null,
+                Name = productPricesDictionary[x.Id].Name,
+                Price = productPricesDictionary[x.Id].Price,
+                Quantity = x.Quantity,
+            }));
             var result = shoppingCart.GetSummary(promotions);
             return Ok(result);
         }

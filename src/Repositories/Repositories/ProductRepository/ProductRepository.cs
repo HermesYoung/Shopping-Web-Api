@@ -64,9 +64,9 @@ internal class ProductRepository : IProductRepository
         return Result.Success();
     }
 
-    public async Task<Result> UpdateProductAsync(Guid productId, ProductUpdateDetail productUpdateDetail)
+    public async Task<Result> UpdateProductAsync(ProductUpdateDetail productUpdateDetail)
     {
-        var product = _shoppingWebDbContext.Products.FirstOrDefault(x => x.Id == productId);
+        var product = _shoppingWebDbContext.Products.FirstOrDefault(x => x.Id == productUpdateDetail.ProductId);
         if (product == null)
         {
             return Result.Failure();
@@ -108,5 +108,37 @@ internal class ProductRepository : IProductRepository
     public IQueryable<Product> GetProductWithPromotions()
     {
         return _shoppingWebDbContext.Products.Include(x => x.Categories).Include(x => x.Promotions).AsQueryable();
+    }
+
+    public async Task<IEnumerable<ProductPrice>> GetProductsPriceByIds(IEnumerable<Guid> productIds)
+    {
+        var products = await _shoppingWebDbContext.Products.AsQueryable().Where(x => productIds.Contains(x.Id))
+            .ToListAsync();
+        return products.Select(x => new ProductPrice()
+        {
+            Id = x.Id,
+            Name = x.Name,
+            Price = x.Price,
+        });
+    }
+
+    public async Task<Result<ProductDetail>> GetProductDetailByIdAsync(Guid productId)
+    {
+        var product = await _shoppingWebDbContext.Products.Include(x => x.Categories).AsQueryable()
+            .FirstOrDefaultAsync(x => x.Id == productId);
+        if (product == null)
+        {
+            return Result<ProductDetail>.Failure(Error.Create("Product not found",
+                new ErrorMessage(ErrorCode.ProductNotFound)));
+        }
+
+        return Result<ProductDetail>.Success(new ProductDetail()
+        {
+            Description = product.Description,
+            Name = product.Name,
+            Price = product.Price,
+            IsSoldOut = product.IsSoldOut,
+            IsDisabled = product.IsDisabled,
+        });
     }
 }
