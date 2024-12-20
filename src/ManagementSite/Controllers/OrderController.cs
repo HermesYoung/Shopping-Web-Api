@@ -25,7 +25,7 @@ namespace ManagementSite.Controllers
             return Ok(orders);
         }
 
-        [HttpPut("{id}")]
+        [HttpPut("{id}/Status")]
         public async Task<IActionResult> UpdateOrder([FromRoute] Guid id, OrderStatusBody orderStatus)
         {
             var status = OrderStatus.TryParse(orderStatus.Status);
