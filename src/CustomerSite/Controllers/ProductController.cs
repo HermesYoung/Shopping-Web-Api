@@ -61,25 +61,5 @@ namespace CustomerSite.Controllers
 
             return Ok(result.Value!);
         }
-
-
-        [HttpPost("ShoppingCart/Summary")]
-        public async Task<IActionResult> GetShoppingCartSummaryAsync([FromBody] Cart cart)
-        {
-            var promotions = await _promotionRepository.GetCurrentPromotionAsync();
-            var productsPriceByIds =
-                await _productRepository.GetProductsPriceByIds(cart.Products.Select(x => x.Id));
-            var productPricesDictionary = productsPriceByIds.ToDictionary(price => price.Id, price => price);
-            var shoppingCart = new ShoppingCart(cart.Products.Select(x => new ShoppingCart.ProductInCart()
-            {
-                Id = x.Id,
-                DiscountPrice = null,
-                Name = productPricesDictionary[x.Id].Name,
-                Price = productPricesDictionary[x.Id].Price,
-                Quantity = x.Quantity,
-            }));
-            var result = shoppingCart.GetSummary(promotions);
-            return Ok(result);
-        }
     }
 }

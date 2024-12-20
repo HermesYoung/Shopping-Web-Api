@@ -1,7 +1,8 @@
-using DatabaseContext.Entities;
+using CustomerSite.Controllers.Models;
 using Microsoft.AspNetCore.Mvc;
 using Repositories.Abstracts;
 using Repositories.Repositories.OrderRepository.Models;
+using Repositories.Repositories.PromotionRepository.Models;
 
 namespace CustomerSite.Controllers
 {
@@ -10,10 +11,14 @@ namespace CustomerSite.Controllers
     public class OrderController : ControllerBase
     {
         private readonly IOrderRepository _orderRepository;
+        private readonly IPromotionRepository _promotionRepository;
+        private readonly IProductRepository _productRepository;
 
-        public OrderController(IOrderRepository orderRepository)
+        public OrderController(IOrderRepository orderRepository, IPromotionRepository promotionRepository, IProductRepository productRepository)
         {
             _orderRepository = orderRepository;
+            _promotionRepository = promotionRepository;
+            _productRepository = productRepository;
         }
 
         [HttpGet]
@@ -46,6 +51,25 @@ namespace CustomerSite.Controllers
             }
 
             return NoContent();
+        }
+        
+        [HttpPost("Preview")]
+        public async Task<IActionResult> GetShoppingCartSummaryAsync([FromBody] Cart cart)
+        {
+            var promotions = await _promotionRepository.GetCurrentPromotionAsync();
+            var productsPriceByIds =
+                await _productRepository.GetProductsPriceByIds(cart.Products.Select(x => x.Id));
+            var productPricesDictionary = productsPriceByIds.ToDictionary(price => price.Id, price => price);
+            var shoppingCart = new ShoppingCart(cart.Products.Select(x => new ShoppingCart.ProductInCart()
+            {
+                Id = x.Id,
+                DiscountPrice = null,
+                Name = productPricesDictionary[x.Id].Name,
+                Price = productPricesDictionary[x.Id].Price,
+                Quantity = x.Quantity,
+            }));
+            var result = shoppingCart.GetReceipt(promotions);
+            return Ok(result);
         }
     }
 }
