@@ -1,5 +1,6 @@
 ﻿using DatabaseContext.Entities;
 using Repositories.Common;
+using Repositories.Repositories.ProductRepository;
 using Repositories.Repositories.ProductRepository.Models;
 
 namespace Repositories.Abstracts;
@@ -14,4 +15,5 @@ public interface IProductRepository
     IQueryable<Product> GetProductWithPromotions();
     Task<IEnumerable<ProductPrice>> GetProductsPriceByIds(IEnumerable<Guid> productIds);
     Task<Result<ProductDetail>> GetProductDetailByIdAsync(Guid productId);
+    Task<SellingSummary> GetProductSellSummary(DateTime startDate, DateTime endDate);
 }

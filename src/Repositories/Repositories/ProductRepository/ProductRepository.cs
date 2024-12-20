@@ -141,4 +141,40 @@ internal class ProductRepository : IProductRepository
             IsDisabled = product.IsDisabled,
         });
     }
+
+    public async Task<SellingSummary> GetProductSellSummary(DateTime startDate, DateTime endDate)
+    {
+        var sellList = await _shoppingWebDbContext.ProductSells.Include(x => x.Product).AsQueryable()
+            .Where(x => x.Date >= startDate && x.Date <= endDate).ToListAsync();
+
+        var sellingSummary = sellList.GroupBy(x => x.ProductId).Select(sells => new ProductSellSummary
+        {
+            Id = sells.Key,
+            Name = sells.First().Product.Name,
+            Quantity = sells.Sum(x => x.Quantity),
+            Total = sells.Sum(x => x.TotalPrice)
+        });
+
+        return new SellingSummary
+        {
+            From = startDate,
+            To = endDate,
+            ProductSellsSummary = sellingSummary
+        };
+    }
+}
+
+public class SellingSummary
+{
+    public DateTime From { get; set; }
+    public DateTime To { get; set; }
+    public IEnumerable<ProductSellSummary> ProductSellsSummary { get; set; }
+}
+
+public class ProductSellSummary
+{
+    public Guid Id { get; set; }
+    public string Name { get; set; }
+    public int Quantity { get; set; }
+    public decimal Total { get; set; }
 }

@@ -1,4 +1,6 @@
-﻿namespace Repositories.Repositories.PromotionRepository.Models;
+﻿using System.Text.Json.Serialization;
+
+namespace Repositories.Repositories.PromotionRepository.Models;
 
 public class Receipt
 {
@@ -23,6 +25,7 @@ public class Receipt
 
     public double Total { get; set; }
 
+    [JsonConstructor]
     private Receipt(IEnumerable<ShoppingCart.ProductInCart> items, double total)
     {
         Items = items;
