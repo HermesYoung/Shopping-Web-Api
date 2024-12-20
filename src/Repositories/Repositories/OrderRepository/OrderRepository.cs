@@ -33,14 +33,14 @@ internal class OrderRepository : IOrderRepository
             Status = OrderStatus.Created.StatusCode,
             CreateDate = dateTime,
         });
-        
+
         var productSells = orderContent.Receipt.Items.Select(x => new ProductSell()
         {
             Id = Guid.NewGuid(),
             Date = dateTime,
             ProductId = x.Id,
             Quantity = x.Quantity,
-            TotalPrice = (decimal)(x.Price * x.Quantity),
+            TotalPrice = (decimal)(x.DiscountPrice ?? x.Price * x.Quantity),
             OrderId = newOrderId,
         });
 
@@ -117,6 +117,7 @@ internal class OrderRepository : IOrderRepository
         {
             return Result.Failure(Error.Create("Order not found", new ErrorMessage(ErrorCode.OrderNotFound)));
         }
+
         order.Status = status.StatusCode;
         _shoppingWebDbContext.Orders.Update(order);
         await _shoppingWebDbContext.SaveChangesAsync();
@@ -128,7 +129,8 @@ internal class OrderRepository : IOrderRepository
         var order = await _shoppingWebDbContext.Orders.FindAsync(orderId);
         if (order == null)
         {
-            return Result<OrderDetails>.Failure(Error.Create("Order not found", new ErrorMessage(ErrorCode.OrderNotFound)));
+            return Result<OrderDetails>.Failure(Error.Create("Order not found",
+                new ErrorMessage(ErrorCode.OrderNotFound)));
         }
 
         return Result<OrderDetails>.Success(new OrderDetails()
