@@ -10,4 +10,5 @@ public interface IPromotionRepository
     Task<IEnumerable<PromotionCalender>> GetPromotionCalenderAsync(DateTime startDate, DateTime endDate);
     Task<Result> DeletePromotionAsync(Guid promotionId);
     Task<IEnumerable<PromotionContent>> GetCurrentPromotionAsync();
+    Task<Result<PromotionDetail>> GetPromotionDetailAsync(Guid promotionId);
 }

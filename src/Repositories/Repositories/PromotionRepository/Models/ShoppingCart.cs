@@ -20,6 +20,6 @@ public class ShoppingCart
 
     public Receipt GetReceipt(IEnumerable<PromotionContent> promotions)
     {
-        return Receipt.FromProducts(Products, promotions);
+        return Receipt.FromShoppingCart(this, promotions);
     }
 }

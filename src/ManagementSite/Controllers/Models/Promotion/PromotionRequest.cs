@@ -1,4 +1,5 @@
 ﻿using Repositories.Repositories.PromotionRepository.Models;
+using Repositories.Repositories.PromotionRepository.Models.PromotionProviders;
 
 namespace ManagementSite.Controllers.Models.Promotion;
 

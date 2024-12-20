@@ -1,8 +1,10 @@
 using CustomerSite.Controllers.Models;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using Repositories.Abstracts;
 using Repositories.Common;
 using Repositories.Repositories.PromotionRepository.Models;
+using Repositories.Repositories.PromotionRepository.Models.PromotionProviders;
 using JsonSerializer = System.Text.Json.JsonSerializer;
 
 namespace CustomerSite.Controllers
@@ -39,7 +41,7 @@ namespace CustomerSite.Controllers
                 Price = x.Price,
                 Description = x.Description,
                 DiscontPrice = x.Promotions.Any()
-                    ? JsonSerializer.Deserialize<IEnumerable<IPromotionProvider>>(x.Promotions.First().ContentJson)!
+                    ? JsonSerializer.Deserialize<IEnumerable<PromotionProviderBase>>(x.Promotions.First().ContentJson)!
                         .Select(provider => provider.GetPrice(x.Id, x.Price)).Min()
                     : x.Price,
             }));
@@ -48,18 +50,23 @@ namespace CustomerSite.Controllers
         [HttpGet("{id}")]
         public async Task<IActionResult> GetProductByIdAsync(Guid id)
         {
-            var result = await _productRepository.GetProductDetailByIdAsync(id);
-            if (!result.IsSuccess)
+            var result = await _productRepository.GetProductWithPromotions().FirstOrDefaultAsync(x => x.Id == id);
+            if (result is null)
             {
-                if (result.Error!.ErrorMessage.ErrorCode == ErrorCode.ProductNotFound)
-                {
-                    return NotFound(id);
-                }
-
-                return BadRequest(result.Error);
+                return NotFound();
             }
 
-            return Ok(result.Value!);
+            return Ok(new
+            {
+                Id = result.Id,
+                Name = result.Name,
+                Price = result.Price,
+                Description = result.Description,
+                DiscontPrice = result.Promotions.Any()
+                    ? JsonSerializer.Deserialize<IEnumerable<PromotionProviderBase>>(result.Promotions.First().ContentJson)!
+                        .Select(provider => provider.GetPrice(result.Id, result.Price)).Min()
+                    : result.Price
+            });
         }
     }
 }

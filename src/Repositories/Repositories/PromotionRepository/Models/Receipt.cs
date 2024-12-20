@@ -2,28 +2,21 @@
 
 public class Receipt
 {
-    public static Receipt FromProducts(IEnumerable<ShoppingCart.ProductInCart> products,
-        IEnumerable<PromotionContent> promotionContents)
+    public static Receipt FromShoppingCart(ShoppingCart shoppingCart, IEnumerable<PromotionContent> promotionContents)
     {
-        var productInCarts = products.ToList();
-        var promotions = promotionContents.SelectMany(x => x.Content).ToList();
         var total = 0;
-        if (!promotions.Any())
+        var contents = promotionContents.ToList();
+        if (!contents.Any())
         {
-            total = (int)productInCarts.Sum(x => x.Price * x.Quantity);
+            total = (int)shoppingCart.Products.Select(x => x.Price).Sum();
         }
-        else
-        {
-            foreach (var product in productInCarts)
-            {
-                var discountPrice = promotions.Select(x => x.GetPrice(product.Id ,product.Price)).Min();
-                total += discountPrice * product.Quantity;
-                product.DiscountPrice = Math.Abs(discountPrice - product.Price) < 0.1? null : discountPrice;
-            }
-        }
-        
-        return new Receipt(productInCarts,
-            total);
+
+        var promotionProviders = contents.SelectMany(x => x.Content).ToList();
+
+        var cart = promotionProviders.Aggregate(shoppingCart, (current, provider) => provider.ApplyDiscount(current));
+        total = (int)cart.Products.Select(x => x.DiscountPrice ?? x.Price).Sum();
+
+        return new Receipt(cart.Products, total);
     }
 
     public IEnumerable<ShoppingCart.ProductInCart> Items { get; set; }

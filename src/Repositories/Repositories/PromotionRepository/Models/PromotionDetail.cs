@@ -2,14 +2,12 @@
 
 namespace Repositories.Repositories.PromotionRepository.Models;
 
-public class PromotionContent
+public class PromotionDetail
 {
-    public DateTime StartDate { get; set; }
-
-    public DateTime EndDate { get; set; }
-    public required string Title { get; set; }
-
+    public Guid Id { get; set; }
+    public string Title { get; set; }
     public string? DisplayContent { get; set; }
-
-    public required IEnumerable<PromotionProviderBase> Content { get; set; }
+    public IEnumerable<PromotionProviderBase> PromotionContent { get; set; }
+    public DateTime StartDate { get; set; }
+    public DateTime EndDate { get; set; }
 }

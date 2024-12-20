@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Mvc;
 using Repositories.Abstracts;
 using Repositories.Common;
 using Repositories.Repositories.PromotionRepository.Models;
+using Repositories.Repositories.PromotionRepository.Models.PromotionProviders;
 
 namespace ManagementSite.Controllers
 {
@@ -41,7 +42,7 @@ namespace ManagementSite.Controllers
 
         private Result<PromotionContent> CreateContent(PromotionRequest promotion)
         {
-            var providers = new List<IPromotionProvider>();
+            var providers = new List<PromotionProviderBase>();
             if (promotion.SpecialOffer != null)
             {
                 providers.Add(promotion.SpecialOffer);
@@ -93,6 +94,18 @@ namespace ManagementSite.Controllers
             var result = await _promotionRepository.GetPromotionCalenderAsync(query.StartDate, query.EndDate);
           
             return Ok(result);
+        }
+
+        [HttpGet("{id}")]
+        public async Task<IActionResult> GetPromotionAsync(Guid id)
+        {
+            var result = await _promotionRepository.GetPromotionDetailAsync(id);
+            if (!result.IsSuccess)
+            {
+                return NotFound(result.Error);
+            }
+            
+            return Ok(result.Value);
         }
 
         [HttpDelete("{id}")]
