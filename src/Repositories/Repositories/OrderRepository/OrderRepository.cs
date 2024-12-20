@@ -21,6 +21,7 @@ internal class OrderRepository : IOrderRepository
     public async Task<Result> CreateOrderAsync(OrderContent orderContent)
     {
         var newOrderId = Guid.NewGuid();
+        var dateTime = DateTime.Now;
         await _shoppingWebDbContext.Orders.AddAsync(new Order
         {
             Id = newOrderId,
@@ -29,11 +30,10 @@ internal class OrderRepository : IOrderRepository
             Address = orderContent.Address,
             Email = orderContent.Email,
             ContentJson = JsonSerializer.Serialize(orderContent.Receipt),
-            Status = OrderStatus.Created.StatusCode
+            Status = OrderStatus.Created.StatusCode,
+            CreateDate = dateTime,
         });
-
-        var dateTime = DateTime.Now;
-
+        
         var productSells = orderContent.Receipt.Items.Select(x => new ProductSell()
         {
             Id = Guid.NewGuid(),

@@ -14,7 +14,7 @@ public class Receipt
         var promotionProviders = contents.SelectMany(x => x.Content).ToList();
 
         var cart = promotionProviders.Aggregate(shoppingCart, (current, provider) => provider.ApplyDiscount(current));
-        total = (int)cart.Products.Select(x => x.DiscountPrice ?? x.Price).Sum();
+        total = (int)cart.Products.Select(x => (x.DiscountPrice ?? x.Price) * x.Quantity).Sum();
 
         return new Receipt(cart.Products, total);
     }

@@ -1,4 +1,5 @@
 using CustomerSite.Controllers.Models;
+using CustomerSite.Controllers.Models.Order;
 using Microsoft.AspNetCore.Mvc;
 using Repositories.Abstracts;
 using Repositories.Repositories.OrderRepository.Models;
@@ -42,19 +43,37 @@ namespace CustomerSite.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> CreateOrderAsync([FromBody] OrderContent order)
+        public async Task<IActionResult> CreateOrderAsync([FromBody] OrderCreateContent order)
         {
-            var result = await _orderRepository.CreateOrderAsync(order);
+            var receipt = await CreateReceipt(order.Cart);
+            var result = await _orderRepository.CreateOrderAsync(new OrderContent()
+            {
+                Address = order.Address,
+                Email = order.Email,
+                Name = order.Name,
+                Phone = order.Phone,
+                Receipt = receipt,
+            });
+            
             if (!result.IsSuccess)
             {
                 return BadRequest(result.Error);
             }
 
-            return NoContent();
+            return Ok(receipt);
         }
         
         [HttpPost("Preview")]
         public async Task<IActionResult> GetShoppingCartSummaryAsync([FromBody] Cart cart)
+        {
+            var result = await CreateReceipt(cart);
+            return Ok(new
+            {
+                Result = result,
+            });
+        }
+
+        private async Task<Receipt> CreateReceipt(Cart cart)
         {
             var promotions = await _promotionRepository.GetCurrentPromotionAsync();
             var productsPriceByIds =
@@ -69,7 +88,7 @@ namespace CustomerSite.Controllers
                 Quantity = x.Quantity,
             }));
             var result = shoppingCart.GetReceipt(promotions);
-            return Ok(result);
+            return result;
         }
     }
 }
