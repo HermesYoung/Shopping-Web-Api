@@ -93,7 +93,6 @@ public partial class ShoppingWebDbContext : DbContext
                 .ValueGeneratedNever()
                 .HasColumnName("id");
             entity.Property(e => e.Description)
-                .HasMaxLength(100)
                 .IsUnicode(false)
                 .HasColumnName("description");
             entity.Property(e => e.IsDisabled).HasColumnName("is_disabled");
